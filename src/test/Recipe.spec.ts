@@ -6,66 +6,69 @@ import * as chai from 'chai';
 import * as sinon from 'sinon';
 var expect: Chai.ExpectStatic = chai.expect;
 
-describe('Recipe', () => {
-  var model;
+describe('bakery', () => {
+  describe('Recipe', () => {
+    var model;
 
-  beforeEach(() => {
-    model = new LoopbackModelMock();
-    sinon.stub(model, 'create', model.create);
-    model.nextId = 5;
-  });
-
-  describe('make', () => {
-
-    it('should create a new model with the passed attributes', async () => {
-      let recipe = bakery.Recipe(model);
-      const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
-      expect(record.id).to.equal(5);
-      expect(record.name).to.equal('Steven');
-      expect(record.email).to.equal('steven@mail.test');
+    beforeEach(() => {
+      model = new LoopbackModelMock();
+      sinon.stub(model, 'create', model.create);
+      model.nextId = 5;
     });
 
-    it('should use default attributes if defined and not overwritten by the make arguments', async () => {
-      let recipe = bakery.Recipe(model, {
-        name: 'Richard'
+    describe('make', () => {
+
+      it('should create a new model with the passed attributes', async () => {
+        let recipe = bakery.Recipe(model);
+        const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+        sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
+        expect(record.id).to.equal(5);
+        expect(record.name).to.equal('Steven');
+        expect(record.email).to.equal('steven@mail.test');
       });
-      await recipe({email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
-    });
 
-    it('should NOT use default attributes if defined but overwritten by the make arguments', async () => {
-      let recipe = bakery.Recipe(model, {
-        name: 'Richard'
+      it('should use default attributes if defined and not overwritten by the make arguments', async () => {
+        let recipe = bakery.Recipe(model, {
+          name: 'Richard'
+        });
+        await recipe({email: 'steven@mail.test'});
+        sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
       });
-      await recipe({name: 'Steven', email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
-    });
 
-    it('should allow passing functions to create attribute values', async () => {
-      let recipe = bakery.Recipe(model, {
-        name: () => {
-          return 'Richard';
-        }
+      it('should NOT use default attributes if defined but overwritten by the make arguments', async () => {
+        let recipe = bakery.Recipe(model, {
+          name: 'Richard'
+        });
+        await recipe({name: 'Steven', email: 'steven@mail.test'});
+        sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
       });
-      await recipe({email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
-    });
 
-    it('should allow passing functions to create attribute values that return a promise', async () => {
-      let recipe = bakery.Recipe(model, {
-        name: (): Promise<string> => {
-          return new Promise<string>((resolve) => {
-            process.nextTick(() => {
-              resolve('Richard');
-            })
-          });
-        }
+      it('should allow passing functions to create attribute values', async () => {
+        let recipe = bakery.Recipe(model, {
+          name: () => {
+            return 'Richard';
+          }
+        });
+        await recipe({email: 'steven@mail.test'});
+        sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
       });
-      await recipe({email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
-    });
 
+      it('should allow passing functions to create attribute values that return a promise', async () => {
+        let recipe = bakery.Recipe(model, {
+          name: (): Promise<string> => {
+            return new Promise<string>((resolve) => {
+              process.nextTick(() => {
+                resolve('Richard');
+              })
+            });
+          }
+        });
+        await recipe({email: 'steven@mail.test'});
+        sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
+      });
+
+
+    });
 
   });
 
