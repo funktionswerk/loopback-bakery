@@ -1,6 +1,6 @@
 # loopback-bakery
 
-This is a toolkit to easily create test data for [loopback](http://loopback.io/) based application.
+This is a toolkit to easily create test data for [loopback](http://loopback.io/) based applications.
 It is heavily inspired by [Django's Model Mommy](http://model-mommy.readthedocs.io/en/latest/basic_usage.html).
 
 ## Installation
