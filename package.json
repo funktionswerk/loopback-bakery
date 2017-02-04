@@ -1,0 +1,25 @@
+{
+  "name": "loopback-bakery",
+  "version": "1.0.0",
+  "description": "Toolkit to create sample data for loopback models",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/funktionswerk/loopback-bakery.git"
+  },
+  "keywords": [
+    "loopback",
+    "database",
+    "test",
+    "data"
+  ],
+  "author": "Kay Wolter",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/funktionswerk/loopback-bakery/issues"
+  },
+  "homepage": "https://github.com/funktionswerk/loopback-bakery#readme"
+}
