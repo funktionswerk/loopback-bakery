@@ -52,6 +52,21 @@ describe('Recipe', () => {
       sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
     });
 
+    it('should allow passing functions to create attribute values that return a promise', async () => {
+      let recipe = bakery.Recipe(model, {
+        name: (): Promise<string> => {
+          return new Promise<string>((resolve) => {
+            process.nextTick(() => {
+              resolve('Richard');
+            })
+          });
+        }
+      });
+      await recipe({email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
+    });
+
+
   });
 
 });

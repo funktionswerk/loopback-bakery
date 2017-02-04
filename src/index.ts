@@ -28,12 +28,23 @@ function resolveAttributes(attributes): Promise<any> {
           resolvedAttributes[attrKey] = attributes[attrKey];
           return cb();
         }
-        resolvedAttributes[attrKey] = attributes[attrKey]();
-        return cb();
+        let value = attributes[attrKey]();
+        if (!isThennable(value)) {
+          resolvedAttributes[attrKey] = value;
+          return cb();
+        }
+        value.then((resolvedValue) => {
+          resolvedAttributes[attrKey] = resolvedValue;
+          cb();
+        })
       },
       (err: Error) => {
         resolve(resolvedAttributes);
       }
     )
   });
+}
+
+function isThennable(val): boolean {
+  return val.then && val.catch;
 }
