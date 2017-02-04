@@ -25,6 +25,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^3.4.34",
+    "@types/es6-promise": "0.0.32",
     "@types/loopback": "^3.1.0-next.1",
     "@types/mocha": "^2.2.39",
     "@types/node": "^7.0.5",

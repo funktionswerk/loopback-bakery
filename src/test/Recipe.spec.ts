@@ -8,26 +8,18 @@ var expect: Chai.ExpectStatic = chai.expect;
 
 describe('Recipe', () => {
   var model;
-  var modelMock;
 
   beforeEach(() => {
     model = new LoopbackModelMock();
-    modelMock = sinon.mock(model);
-  });
-
-  afterEach(() => {
-    modelMock.verify();
+    sinon.stub(model, 'create', model.create);
   });
 
   describe('make', () => {
 
-    it('should create a new model with the passed attributes', () => {
-      modelMock.expects('create').once().returns(42);
+    it('should create a new model with the passed attributes', async () => {
       let recipe = bakery.Recipe(model);
-      recipe({
-        name: 'Steven',
-        email: 'steven@mail.test'
-      });
+      await recipe({name: 'Steven', email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
     });
 
   });
