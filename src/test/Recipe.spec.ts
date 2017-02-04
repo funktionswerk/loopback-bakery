@@ -22,6 +22,22 @@ describe('Recipe', () => {
       sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
     });
 
+    it('should use default attributes if defined and not overwritten by the make arguments', async () => {
+      let recipe = bakery.Recipe(model, {
+        name: 'Richard'
+      });
+      await recipe({email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
+    });
+
+    it('should NOT use default attributes if defined but overwritten by the make arguments', async () => {
+      let recipe = bakery.Recipe(model, {
+        name: 'Richard'
+      });
+      await recipe({name: 'Steven', email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
+    });
+
   });
 
 });
