@@ -29,7 +29,6 @@ coverage
 build/Release
 
 # Compiled sources
-src/**/*.js
 *.js.map
 
 # Dependency directory
