@@ -22,7 +22,9 @@
     "url": "https://github.com/funktionswerk/loopback-bakery/issues"
   },
   "homepage": "https://github.com/funktionswerk/loopback-bakery#readme",
-  "dependencies": {},
+  "dependencies": {
+    "async": "^2.1.4"
+  },
   "devDependencies": {
     "@types/chai": "^3.4.34",
     "@types/es6-promise": "0.0.32",
