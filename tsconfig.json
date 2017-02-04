@@ -1,0 +1,12 @@
+
+{
+  "version": "2.1.5",
+  "compilerOptions": {
+    "target": "es6",
+    "sourceMap": true
+  },
+  "filesGlob": [
+  ],
+  "files": [
+  ]
+}
