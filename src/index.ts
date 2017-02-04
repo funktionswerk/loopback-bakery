@@ -4,10 +4,18 @@ export function Recipe(model, defaultAttributes?: any) {
   return function(overrideAttributes): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
       const attributes = { ...defaultAttributes, ...overrideAttributes};
-      const resolvedAttributes = await resolveAttributes(attributes);
-      model.create(resolvedAttributes, (err: Error, model: any) => {
-        resolve(model);
-      });
+      try {
+        const resolvedAttributes = await resolveAttributes(attributes);
+        model.create(resolvedAttributes, (err: Error, model: any) => {
+          if (err) {
+            return reject(err);
+          }
+          return resolve(model);
+        });
+      }
+      catch(err) {
+        reject(err);
+      }
     });
   }
 }
@@ -36,10 +44,15 @@ function resolveAttributes(attributes): Promise<any> {
         value.then((resolvedValue) => {
           resolvedAttributes[attrKey] = resolvedValue;
           cb();
-        })
+        }).catch((err) => {
+          cb(err);
+        });
       },
       (err: Error) => {
-        resolve(resolvedAttributes);
+        if (err) {
+          return reject(err);
+        }
+        return resolve(resolvedAttributes);
       }
     )
   });

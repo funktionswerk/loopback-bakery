@@ -9,13 +9,13 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var LoopbackModelMock = (function () {
     function LoopbackModelMock() {
+        this.create = function (data, cb) {
+            var _this = this;
+            process.nextTick(function () {
+                cb(_this.create.error, __assign({ id: _this.nextId }, data));
+            });
+        };
     }
-    LoopbackModelMock.prototype.create = function (data, cb) {
-        var _this = this;
-        process.nextTick(function () {
-            cb(null, __assign({ id: _this.nextId }, data));
-        });
-    };
     return LoopbackModelMock;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });

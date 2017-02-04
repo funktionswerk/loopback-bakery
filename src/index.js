@@ -47,18 +47,29 @@ function Recipe(model, defaultAttributes) {
     return function (overrideAttributes) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var attributes, resolvedAttributes;
+            var attributes, resolvedAttributes, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         attributes = __assign({}, defaultAttributes, overrideAttributes);
-                        return [4 /*yield*/, resolveAttributes(attributes)];
+                        _a.label = 1;
                     case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, resolveAttributes(attributes)];
+                    case 2:
                         resolvedAttributes = _a.sent();
                         model.create(resolvedAttributes, function (err, model) {
-                            resolve(model);
+                            if (err) {
+                                return reject(err);
+                            }
+                            return resolve(model);
                         });
-                        return [2 /*return*/];
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_1 = _a.sent();
+                        reject(err_1);
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
                 }
             });
         }); });
@@ -87,9 +98,14 @@ function resolveAttributes(attributes) {
             value.then(function (resolvedValue) {
                 resolvedAttributes[attrKey] = resolvedValue;
                 cb();
+            }).catch(function (err) {
+                cb(err);
             });
         }, function (err) {
-            resolve(resolvedAttributes);
+            if (err) {
+                return reject(err);
+            }
+            return resolve(resolvedAttributes);
         });
     });
 }

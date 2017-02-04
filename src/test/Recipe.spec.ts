@@ -67,6 +67,38 @@ describe('bakery', () => {
         sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
       });
 
+      it('should fail if creating the model returned an error', async () => {
+        model.create.error = new Error('Creating the model failed');
+        let caughtError;
+        let recipe = bakery.Recipe(model);
+        try {
+          const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+        }
+        catch(err) {
+          caughtError = err;
+        }
+        expect(caughtError.message).to.equal('Creating the model failed');
+      });
+
+      it('should fail if an attribute promise returned an error', async () => {
+        let caughtError;
+        let recipe = bakery.Recipe(model, {
+          name: (): Promise<string> => {
+            return new Promise<string>((resolve, reject) => {
+              process.nextTick(() => {
+                reject(new Error('Promise did not resolve'));
+              })
+            });
+          }
+        });
+        try {
+          const record = await recipe({email: 'steven@mail.test'});
+        }
+        catch(err) {
+          caughtError = err;
+        }
+        expect(caughtError.message).to.equal('Promise did not resolve');
+      });
 
     });
 

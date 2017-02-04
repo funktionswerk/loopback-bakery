@@ -139,6 +139,61 @@ describe('bakery', function () {
                     }
                 });
             }); });
+            it('should fail if creating the model returned an error', function () { return __awaiter(_this, void 0, void 0, function () {
+                var caughtError, recipe, record, err_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            model.create.error = new Error('Creating the model failed');
+                            recipe = bakery.Recipe(model);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                        case 2:
+                            record = _a.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            err_1 = _a.sent();
+                            caughtError = err_1;
+                            return [3 /*break*/, 4];
+                        case 4:
+                            expect(caughtError.message).to.equal('Creating the model failed');
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
+            it('should fail if an attribute promise returned an error', function () { return __awaiter(_this, void 0, void 0, function () {
+                var caughtError, recipe, record, err_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            recipe = bakery.Recipe(model, {
+                                name: function () {
+                                    return new Promise(function (resolve, reject) {
+                                        process.nextTick(function () {
+                                            reject(new Error('Promise did not resolve'));
+                                        });
+                                    });
+                                }
+                            });
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, recipe({ email: 'steven@mail.test' })];
+                        case 2:
+                            record = _a.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            err_2 = _a.sent();
+                            caughtError = err_2;
+                            return [3 /*break*/, 4];
+                        case 4:
+                            expect(caughtError.message).to.equal('Promise did not resolve');
+                            return [2 /*return*/];
+                    }
+                });
+            }); });
         });
     });
 });
