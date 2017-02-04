@@ -77,8 +77,8 @@ Support for Promises is also available. Instead of returning an attribute your f
 
 var userRecipe = bakery.Recipe(app.models.User, {
   password: 'xxx',
-  email: (): Promise<string> => {
-    return new Promise<string>((resolve) => {
+  email: () => {
+    return new Promise((resolve) => {
       process.nextTick(() => {
         resolve('user@loopback');
       });
