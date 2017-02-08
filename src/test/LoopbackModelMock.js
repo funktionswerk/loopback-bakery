@@ -9,6 +9,9 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var LoopbackModelMock = (function () {
     function LoopbackModelMock() {
+        this.settings = {
+            name: 'ModelMock'
+        };
         this.create = function (data, cb) {
             var _this = this;
             process.nextTick(function () {

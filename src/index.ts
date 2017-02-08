@@ -1,16 +1,24 @@
 import * as async from 'async';
 
+var globalLoggingFunc: (msg: string) => void;
+
 export function Recipe(model, defaultAttributes?: any) {
   return function(overrideAttributes): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
       const attributes = { ...defaultAttributes, ...overrideAttributes};
       try {
         const resolvedAttributes = await resolveAttributes(attributes);
-        model.create(resolvedAttributes, (err: Error, model: any) => {
+        model.create(resolvedAttributes, (err: Error, createdRecord: any) => {
           if (err) {
+            if (globalLoggingFunc) {
+              globalLoggingFunc(`${err}`)
+            }
             return reject(err);
           }
-          return resolve(model);
+          if (globalLoggingFunc) {
+            globalLoggingFunc(`Created ${model.settings.name} with attributes ${JSON.stringify(resolvedAttributes)}`);
+          }
+          return resolve(createdRecord);
         });
       }
       catch(err) {
@@ -18,6 +26,11 @@ export function Recipe(model, defaultAttributes?: any) {
       }
     });
   }
+}
+
+export function withLogging(loggingFunc: (msg: string) => void) {
+  globalLoggingFunc = loggingFunc;
+  return this;
 }
 
 function resolveAttributes(attributes): Promise<any> {

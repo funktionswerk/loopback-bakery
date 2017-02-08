@@ -42,13 +42,13 @@ var chai = require("chai");
 var sinon = require("sinon");
 var expect = chai.expect;
 describe('bakery', function () {
+    var model;
+    beforeEach(function () {
+        model = new LoopbackModelMock_1.default();
+        sinon.stub(model, 'create', model.create);
+        model.nextId = 5;
+    });
     describe('Recipe', function () {
-        var model;
-        beforeEach(function () {
-            model = new LoopbackModelMock_1.default();
-            sinon.stub(model, 'create', model.create);
-            model.nextId = 5;
-        });
         it('should create a new model with the passed attributes', function () { return __awaiter(_this, void 0, void 0, function () {
             var recipe, record;
             return __generator(this, function (_a) {
@@ -189,6 +189,49 @@ describe('bakery', function () {
                         return [3 /*break*/, 4];
                     case 4:
                         expect(caughtError.message).to.equal('Promise did not resolve');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    });
+    describe('withLogging', function () {
+        var loggingFunc;
+        var recipe;
+        beforeEach(function () {
+            model.settings.name = 'User';
+            loggingFunc = sinon.spy();
+            recipe = bakery.withLogging(loggingFunc).Recipe(model);
+        });
+        it('should allow adding a global logging function and log the created models', function () { return __awaiter(_this, void 0, void 0, function () {
+            var record;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 1:
+                        record = _a.sent();
+                        sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Created User with attributes {"name":"Steven","email":"steven@mail.test"}');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should allow log errors through the passed logging function', function () { return __awaiter(_this, void 0, void 0, function () {
+            var record, err_3;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        model.create.error = new Error('Creating the model failed');
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, recipe({ email: 'steven@mail.test' })];
+                    case 2:
+                        record = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_3 = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 4:
+                        sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Error: Creating the model failed');
                         return [2 /*return*/];
                 }
             });

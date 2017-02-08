@@ -7,15 +7,15 @@ import * as sinon from 'sinon';
 var expect: Chai.ExpectStatic = chai.expect;
 
 describe('bakery', () => {
+  var model;
+
+  beforeEach(() => {
+    model = new LoopbackModelMock();
+    sinon.stub(model, 'create', model.create);
+    model.nextId = 5;
+  });
 
   describe('Recipe', () => {
-    var model;
-
-    beforeEach(() => {
-      model = new LoopbackModelMock();
-      sinon.stub(model, 'create', model.create);
-      model.nextId = 5;
-    });
 
     it('should create a new model with the passed attributes', async () => {
       let recipe = bakery.Recipe(model);
@@ -97,6 +97,33 @@ describe('bakery', () => {
         caughtError = err;
       }
       expect(caughtError.message).to.equal('Promise did not resolve');
+    });
+
+  });
+
+  describe('withLogging', () => {
+    let loggingFunc;
+    let recipe;
+
+    beforeEach(() => {
+      model.settings.name = 'User';
+      loggingFunc = sinon.spy();
+      recipe = bakery.withLogging(loggingFunc).Recipe(model);
+    });
+
+    it('should allow adding a global logging function and log the created models', async () => {
+      const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Created User with attributes {"name":"Steven","email":"steven@mail.test"}');
+    });
+
+    it('should allow log errors through the passed logging function', async () => {
+      model.create.error = new Error('Creating the model failed');
+      try {
+        const record = await recipe({email: 'steven@mail.test'});
+      }
+      catch(err) {
+      }
+      sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Error: Creating the model failed');
     });
 
   });

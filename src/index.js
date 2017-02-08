@@ -43,11 +43,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var async = require("async");
+var globalLoggingFunc;
 function Recipe(model, defaultAttributes) {
     return function (overrideAttributes) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var attributes, resolvedAttributes, err_1;
+            var attributes, resolvedAttributes_1, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -57,12 +58,18 @@ function Recipe(model, defaultAttributes) {
                         _a.trys.push([1, 3, , 4]);
                         return [4 /*yield*/, resolveAttributes(attributes)];
                     case 2:
-                        resolvedAttributes = _a.sent();
-                        model.create(resolvedAttributes, function (err, model) {
+                        resolvedAttributes_1 = _a.sent();
+                        model.create(resolvedAttributes_1, function (err, createdRecord) {
                             if (err) {
+                                if (globalLoggingFunc) {
+                                    globalLoggingFunc("" + err);
+                                }
                                 return reject(err);
                             }
-                            return resolve(model);
+                            if (globalLoggingFunc) {
+                                globalLoggingFunc("Created " + model.settings.name + " with attributes " + JSON.stringify(resolvedAttributes_1));
+                            }
+                            return resolve(createdRecord);
                         });
                         return [3 /*break*/, 4];
                     case 3:
@@ -76,6 +83,11 @@ function Recipe(model, defaultAttributes) {
     };
 }
 exports.Recipe = Recipe;
+function withLogging(loggingFunc) {
+    globalLoggingFunc = loggingFunc;
+    return this;
+}
+exports.withLogging = withLogging;
 function resolveAttributes(attributes) {
     return new Promise(function (resolve, reject) {
         var attrKeys = [];
