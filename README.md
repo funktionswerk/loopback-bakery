@@ -108,6 +108,7 @@ var bakery = require('loopback-bakery');
 var adminUserRecipe = bakery.UserRecipe(app.models.User).withRole('admin', app.models.Role);
 let adminUser = await adminUserRecipe({email: 'admin@loopback.test', password: 'admin'});  
 ```
+The recipe will create a new role in case the required user role does not exist.
 
 ## Logging
 
