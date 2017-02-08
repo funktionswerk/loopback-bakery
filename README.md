@@ -8,7 +8,7 @@ It is heavily inspired by [Django's Model Mommy](http://model-mommy.readthedocs.
 npm install --save loopback-bakery
 ```
 
-## Usage
+## Basic Usage
 
 Import the module and create a recipe for a loopback PersistedModel:
 
@@ -40,6 +40,7 @@ userRecipe({
   console.log(user);
 });
 ```
+## Dynamic Data
 
 Instead of fixed attributes you can use functions that are resolved to attribute values before the new record is created:
 
