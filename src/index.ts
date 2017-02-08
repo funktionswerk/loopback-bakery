@@ -7,6 +7,12 @@ export function withLogging(loggingFunc: (msg: string) => void) {
   return this;
 }
 
+function _log(msg: string): void {
+  if (globalLoggingFunc) {
+    globalLoggingFunc(msg)
+  }
+}
+
 export function Recipe(model, defaultAttributes?: any) {
   return function(overrideAttributes): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
@@ -15,18 +21,15 @@ export function Recipe(model, defaultAttributes?: any) {
         const resolvedAttributes = await resolveAttributes(attributes);
         model.create(resolvedAttributes, (err: Error, createdRecord: any) => {
           if (err) {
-            if (globalLoggingFunc) {
-              globalLoggingFunc(`${err}`)
-            }
+            _log(`${err}`);
             return reject(err);
           }
-          if (globalLoggingFunc) {
-            globalLoggingFunc(`Created ${model.definition.name} with attributes ${JSON.stringify(resolvedAttributes)}`);
-          }
+          _log(`Created ${model.definition.name} with attributes ${JSON.stringify(resolvedAttributes)}`);
           return resolve(createdRecord);
         });
       }
       catch(err) {
+        _log(`${err}`);
         reject(err);
       }
     });
@@ -50,6 +53,7 @@ export function UserRecipe(userModel, defaultAttributes?: any) {
         principalId: userRecord.id
       }, (err: Error, record): void => {
         if (err) {
+          _log(`${err}`);
           return reject(err);
         }
         return resolve(record);
@@ -71,8 +75,11 @@ function findOrCreateRole(roleModel, roleName: string): Promise<any> {
       where: {
         name: roleName
       }
+    }, {
+      name: roleName
     },(err: Error, roleRecord): void => {
       if (err) {
+        _log(`${err}`);
         return reject(err);
       }
       return resolve(roleRecord);
@@ -110,6 +117,7 @@ function resolveAttributes(attributes): Promise<any> {
       },
       (err: Error) => {
         if (err) {
+          _log(`${err}`);
           return reject(err);
         }
         return resolve(resolvedAttributes);

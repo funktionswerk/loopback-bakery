@@ -286,7 +286,7 @@ describe('bakery', function () {
                         return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
                     case 1:
                         record = _a.sent();
-                        sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, { where: { name: 'admin' } }, sinon.match.func);
+                        sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, { where: { name: 'admin' } }, { name: 'admin' }, sinon.match.func);
                         sinon.assert.alwaysCalledWithExactly(roleRecord.principals.create, { principalId: 15, principalType: 'User' }, sinon.match.func);
                         return [2 /*return*/];
                 }

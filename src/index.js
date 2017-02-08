@@ -49,6 +49,11 @@ function withLogging(loggingFunc) {
     return this;
 }
 exports.withLogging = withLogging;
+function _log(msg) {
+    if (globalLoggingFunc) {
+        globalLoggingFunc(msg);
+    }
+}
 function Recipe(model, defaultAttributes) {
     return function (overrideAttributes) {
         var _this = this;
@@ -66,19 +71,16 @@ function Recipe(model, defaultAttributes) {
                         resolvedAttributes_1 = _a.sent();
                         model.create(resolvedAttributes_1, function (err, createdRecord) {
                             if (err) {
-                                if (globalLoggingFunc) {
-                                    globalLoggingFunc("" + err);
-                                }
+                                _log("" + err);
                                 return reject(err);
                             }
-                            if (globalLoggingFunc) {
-                                globalLoggingFunc("Created " + model.definition.name + " with attributes " + JSON.stringify(resolvedAttributes_1));
-                            }
+                            _log("Created " + model.definition.name + " with attributes " + JSON.stringify(resolvedAttributes_1));
                             return resolve(createdRecord);
                         });
                         return [3 /*break*/, 4];
                     case 3:
                         err_1 = _a.sent();
+                        _log("" + err_1);
                         reject(err_1);
                         return [3 /*break*/, 4];
                     case 4: return [2 /*return*/];
@@ -114,6 +116,7 @@ function UserRecipe(userModel, defaultAttributes) {
                                 principalId: userRecord.id
                             }, function (err, record) {
                                 if (err) {
+                                    _log("" + err);
                                     return reject(err);
                                 }
                                 return resolve(record);
@@ -138,8 +141,11 @@ function findOrCreateRole(roleModel, roleName) {
             where: {
                 name: roleName
             }
+        }, {
+            name: roleName
         }, function (err, roleRecord) {
             if (err) {
+                _log("" + err);
                 return reject(err);
             }
             return resolve(roleRecord);
@@ -173,6 +179,7 @@ function resolveAttributes(attributes) {
             });
         }, function (err) {
             if (err) {
+                _log("" + err);
                 return reject(err);
             }
             return resolve(resolvedAttributes);

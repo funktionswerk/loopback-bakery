@@ -166,7 +166,7 @@ describe('bakery', () => {
     it('should create a new user role principal', async () => {
       let recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
       const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
-      sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, {where: {name: 'admin'}}, sinon.match.func);
+      sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, {where: {name: 'admin'}}, {name: 'admin'}, sinon.match.func);
       sinon.assert.alwaysCalledWithExactly(roleRecord.principals.create, {principalId: 15, principalType: 'User'}, sinon.match.func);
     });
 

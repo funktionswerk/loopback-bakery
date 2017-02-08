@@ -18,10 +18,10 @@ var LoopbackModelMock = (function () {
                 cb(_this.create.error, __assign({}, _this.create.data, data));
             });
         };
-        this.findOrCreate = function (filter, cb) {
+        this.findOrCreate = function (filter, data, cb) {
             var _this = this;
             process.nextTick(function () {
-                cb(_this.findOrCreate.error, __assign({}, _this.findOrCreate.data));
+                cb(_this.findOrCreate.error, __assign({}, _this.findOrCreate.data, data));
             });
         };
     }
