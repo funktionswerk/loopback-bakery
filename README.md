@@ -91,3 +91,18 @@ userRecipe().then((user) => {
   console.log(user);
 });
 ```
+## Logging
+
+```js
+var bakery = require('loopback-bakery');
+var logger = require('debug')('samples');
+
+bakery.withLogging(logger);
+var todoRecipe = bakery.Recipe(app.models.TODO);
+
+// Logs: 'Created TODO with attributes {"title":"Write Email to John","text":"Some more infos about the TODO..."}'
+todoRecipe({
+  title: 'Write Email to John',
+  text: 'Some more infos about the TODO...'
+});
+```
