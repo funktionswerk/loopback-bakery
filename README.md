@@ -103,6 +103,8 @@ The bakery allows to easily create users and roles. Use the built-in UserRecipe:
 var app = require('../server'); //path to your loopback server script
 var bakery = require('loopback-bakery');
 
+//...
+
 var adminUserRecipe = bakery.UserRecipe(app.models.User).withRole('admin', app.models.Role);
 let adminUser = await adminUserRecipe({email: 'admin@loopback.test', password: 'admin'});  
 ```
