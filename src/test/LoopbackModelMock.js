@@ -9,13 +9,19 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 var LoopbackModelMock = (function () {
     function LoopbackModelMock() {
-        this.settings = {
+        this.definition = {
             name: 'ModelMock'
         };
         this.create = function (data, cb) {
             var _this = this;
             process.nextTick(function () {
-                cb(_this.create.error, __assign({ id: _this.nextId }, data));
+                cb(_this.create.error, __assign({}, _this.create.data, data));
+            });
+        };
+        this.findOrCreate = function (filter, cb) {
+            var _this = this;
+            process.nextTick(function () {
+                cb(_this.findOrCreate.error, __assign({}, _this.findOrCreate.data));
             });
         };
     }

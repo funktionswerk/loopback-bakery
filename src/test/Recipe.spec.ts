@@ -9,15 +9,21 @@ var expect: Chai.ExpectStatic = chai.expect;
 describe('bakery', () => {
   var model;
 
-  beforeEach(() => {
-    model = new LoopbackModelMock();
+  var createModelMock = () => {
+    let model = new LoopbackModelMock();
     sinon.stub(model, 'create', model.create);
-    model.nextId = 5;
+    sinon.stub(model, 'findOrCreate', model.findOrCreate);
+    return model;
+  }
+
+  beforeEach(() => {
+    model = createModelMock();
+    model.create.data = {id: 5};
   });
 
   describe('Recipe', () => {
 
-    it('should create a new model with the passed attributes', async () => {
+    it('should create a new record with the passed attributes', async () => {
       let recipe = bakery.Recipe(model);
       const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
       sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
@@ -106,7 +112,7 @@ describe('bakery', () => {
     let recipe;
 
     beforeEach(() => {
-      model.settings.name = 'User';
+      model.definition.name = 'User';
       loggingFunc = sinon.spy();
       recipe = bakery.withLogging(loggingFunc).Recipe(model);
     });
@@ -124,6 +130,70 @@ describe('bakery', () => {
       catch(err) {
       }
       sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Error: Creating the model failed');
+    });
+
+  });
+
+  describe('UserRecipe', () => {
+    var userModel;
+    var roleModel;
+    var roleRecord;
+
+    beforeEach(() => {
+      userModel = createModelMock();
+      roleModel = createModelMock();
+      roleRecord = {
+        principals: {
+          create: (data, cb) => {
+            cb(roleRecord.principals.create.error, roleRecord.principals.create.data);
+          }
+        }
+      };
+      sinon.stub(roleRecord.principals, 'create', roleRecord.principals.create);
+      roleModel.findOrCreate.data = roleRecord;
+      userModel.create.data = {id: 15};
+    });
+
+    it('should create a new user record with the passed attributes', async () => {
+      let recipe = bakery.UserRecipe(userModel);
+      const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(userModel.create, {name: 'Steven', email: 'steven@mail.test'}, sinon.match.func);
+      expect(record.id).to.equal(15);
+      expect(record.name).to.equal('Steven');
+      expect(record.email).to.equal('steven@mail.test');
+    });
+
+    it('should create a new user role principal', async () => {
+      let recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+      const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+      sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, {where: {name: 'admin'}}, sinon.match.func);
+      sinon.assert.alwaysCalledWithExactly(roleRecord.principals.create, {principalId: 15, principalType: 'User'}, sinon.match.func);
+    });
+
+    it('should fail if creating the role record', async () => {
+      let caughtError;
+      roleModel.findOrCreate.error = new Error('Create role failed');
+      let recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+      try {
+        const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+      }
+      catch(err) {
+        caughtError = err;
+      }
+      expect(caughtError.message).to.equal('Create role failed');
+    });
+
+    it('should fail if creating the principal record failed', async () => {
+      let caughtError;
+      roleRecord.principals.create.error = new Error('Create principal failed');
+      let recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+      try {
+        const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+      }
+      catch(err) {
+        caughtError = err;
+      }
+      expect(caughtError.message).to.equal('Create principal failed');
     });
 
   });

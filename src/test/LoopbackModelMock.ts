@@ -1,14 +1,20 @@
 
 export default class LoopbackModelMock {
-  public settings = {
+  public definition = {
     name: 'ModelMock'
   };
-  public nextId: number;
 
   public create = function(data: any, cb: (err: Error, record: any) => void) {
     process.nextTick(() => {
-      cb(this.create.error, {id: this.nextId, ...data});
+      cb(this.create.error, {...this.create.data, ...data});
     });
   }
+
+  public findOrCreate = function(filter: any, cb: (err: Error, record: any) => void) {
+    process.nextTick(() => {
+      cb(this.findOrCreate.error, {...this.findOrCreate.data});
+    });
+  }
+
 
 }

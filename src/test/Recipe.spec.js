@@ -43,13 +43,18 @@ var sinon = require("sinon");
 var expect = chai.expect;
 describe('bakery', function () {
     var model;
-    beforeEach(function () {
-        model = new LoopbackModelMock_1.default();
+    var createModelMock = function () {
+        var model = new LoopbackModelMock_1.default();
         sinon.stub(model, 'create', model.create);
-        model.nextId = 5;
+        sinon.stub(model, 'findOrCreate', model.findOrCreate);
+        return model;
+    };
+    beforeEach(function () {
+        model = createModelMock();
+        model.create.data = { id: 5 };
     });
     describe('Recipe', function () {
-        it('should create a new model with the passed attributes', function () { return __awaiter(_this, void 0, void 0, function () {
+        it('should create a new record with the passed attributes', function () { return __awaiter(_this, void 0, void 0, function () {
             var recipe, record;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -198,7 +203,7 @@ describe('bakery', function () {
         var loggingFunc;
         var recipe;
         beforeEach(function () {
-            model.settings.name = 'User';
+            model.definition.name = 'User';
             loggingFunc = sinon.spy();
             recipe = bakery.withLogging(loggingFunc).Recipe(model);
         });
@@ -232,6 +237,105 @@ describe('bakery', function () {
                         return [3 /*break*/, 4];
                     case 4:
                         sinon.assert.alwaysCalledWithExactly(loggingFunc, 'Error: Creating the model failed');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+    });
+    describe('UserRecipe', function () {
+        var userModel;
+        var roleModel;
+        var roleRecord;
+        beforeEach(function () {
+            userModel = createModelMock();
+            roleModel = createModelMock();
+            roleRecord = {
+                principals: {
+                    create: function (data, cb) {
+                        cb(roleRecord.principals.create.error, roleRecord.principals.create.data);
+                    }
+                }
+            };
+            sinon.stub(roleRecord.principals, 'create', roleRecord.principals.create);
+            roleModel.findOrCreate.data = roleRecord;
+            userModel.create.data = { id: 15 };
+        });
+        it('should create a new user record with the passed attributes', function () { return __awaiter(_this, void 0, void 0, function () {
+            var recipe, record;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipe = bakery.UserRecipe(userModel);
+                        return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 1:
+                        record = _a.sent();
+                        sinon.assert.alwaysCalledWithExactly(userModel.create, { name: 'Steven', email: 'steven@mail.test' }, sinon.match.func);
+                        expect(record.id).to.equal(15);
+                        expect(record.name).to.equal('Steven');
+                        expect(record.email).to.equal('steven@mail.test');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should create a new user role principal', function () { return __awaiter(_this, void 0, void 0, function () {
+            var recipe, record;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+                        return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 1:
+                        record = _a.sent();
+                        sinon.assert.alwaysCalledWithExactly(roleModel.findOrCreate, { where: { name: 'admin' } }, sinon.match.func);
+                        sinon.assert.alwaysCalledWithExactly(roleRecord.principals.create, { principalId: 15, principalType: 'User' }, sinon.match.func);
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should fail if creating the role record', function () { return __awaiter(_this, void 0, void 0, function () {
+            var caughtError, recipe, record, err_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        roleModel.findOrCreate.error = new Error('Create role failed');
+                        recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 2:
+                        record = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_4 = _a.sent();
+                        caughtError = err_4;
+                        return [3 /*break*/, 4];
+                    case 4:
+                        expect(caughtError.message).to.equal('Create role failed');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
+        it('should fail if creating the principal record failed', function () { return __awaiter(_this, void 0, void 0, function () {
+            var caughtError, recipe, record, err_5;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        roleRecord.principals.create.error = new Error('Create principal failed');
+                        recipe = bakery.UserRecipe(userModel).withRole('admin', roleModel);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 2:
+                        record = _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        err_5 = _a.sent();
+                        caughtError = err_5;
+                        return [3 /*break*/, 4];
+                    case 4:
+                        expect(caughtError.message).to.equal('Create principal failed');
                         return [2 /*return*/];
                 }
             });

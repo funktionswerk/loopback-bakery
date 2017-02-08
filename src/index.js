@@ -44,6 +44,11 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var async = require("async");
 var globalLoggingFunc;
+function withLogging(loggingFunc) {
+    globalLoggingFunc = loggingFunc;
+    return this;
+}
+exports.withLogging = withLogging;
 function Recipe(model, defaultAttributes) {
     return function (overrideAttributes) {
         var _this = this;
@@ -67,7 +72,7 @@ function Recipe(model, defaultAttributes) {
                                 return reject(err);
                             }
                             if (globalLoggingFunc) {
-                                globalLoggingFunc("Created " + model.settings.name + " with attributes " + JSON.stringify(resolvedAttributes_1));
+                                globalLoggingFunc("Created " + model.definition.name + " with attributes " + JSON.stringify(resolvedAttributes_1));
                             }
                             return resolve(createdRecord);
                         });
@@ -83,11 +88,64 @@ function Recipe(model, defaultAttributes) {
     };
 }
 exports.Recipe = Recipe;
-function withLogging(loggingFunc) {
-    globalLoggingFunc = loggingFunc;
-    return this;
+function UserRecipe(userModel, defaultAttributes) {
+    var _this = this;
+    var _roleName;
+    var _roleModel;
+    var _rolePrincipalType;
+    var userRecipe = Recipe(userModel, defaultAttributes);
+    var recipe = function (overrideAttributes) { return __awaiter(_this, void 0, void 0, function () {
+        var roleRecord, userRecord;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!_roleName) {
+                        return [2 /*return*/, userRecipe(overrideAttributes)];
+                    }
+                    return [4 /*yield*/, findOrCreateRole(_roleModel, _roleName)];
+                case 1:
+                    roleRecord = _a.sent();
+                    return [4 /*yield*/, userRecipe(overrideAttributes)];
+                case 2:
+                    userRecord = _a.sent();
+                    return [2 /*return*/, new Promise(function (resolve, reject) {
+                            roleRecord.principals.create({
+                                principalType: _rolePrincipalType,
+                                principalId: userRecord.id
+                            }, function (err, record) {
+                                if (err) {
+                                    return reject(err);
+                                }
+                                return resolve(record);
+                            });
+                        })];
+            }
+        });
+    }); };
+    recipe.withRole = function (roleName, roleModel, rolePrincipalType) {
+        if (rolePrincipalType === void 0) { rolePrincipalType = 'User'; }
+        _roleName = roleName;
+        _roleModel = roleModel;
+        _rolePrincipalType = rolePrincipalType;
+        return recipe;
+    };
+    return recipe;
 }
-exports.withLogging = withLogging;
+exports.UserRecipe = UserRecipe;
+function findOrCreateRole(roleModel, roleName) {
+    return new Promise(function (resolve, reject) {
+        roleModel.findOrCreate({
+            where: {
+                name: roleName
+            }
+        }, function (err, roleRecord) {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(roleRecord);
+        });
+    });
+}
 function resolveAttributes(attributes) {
     return new Promise(function (resolve, reject) {
         var attrKeys = [];

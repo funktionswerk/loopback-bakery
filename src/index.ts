@@ -2,6 +2,11 @@ import * as async from 'async';
 
 var globalLoggingFunc: (msg: string) => void;
 
+export function withLogging(loggingFunc: (msg: string) => void) {
+  globalLoggingFunc = loggingFunc;
+  return this;
+}
+
 export function Recipe(model, defaultAttributes?: any) {
   return function(overrideAttributes): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
@@ -16,7 +21,7 @@ export function Recipe(model, defaultAttributes?: any) {
             return reject(err);
           }
           if (globalLoggingFunc) {
-            globalLoggingFunc(`Created ${model.settings.name} with attributes ${JSON.stringify(resolvedAttributes)}`);
+            globalLoggingFunc(`Created ${model.definition.name} with attributes ${JSON.stringify(resolvedAttributes)}`);
           }
           return resolve(createdRecord);
         });
@@ -28,9 +33,51 @@ export function Recipe(model, defaultAttributes?: any) {
   }
 }
 
-export function withLogging(loggingFunc: (msg: string) => void) {
-  globalLoggingFunc = loggingFunc;
-  return this;
+export function UserRecipe(userModel, defaultAttributes?: any) {
+  var _roleName: string;
+  var _roleModel;
+  var _rolePrincipalType;
+  let userRecipe = Recipe(userModel, defaultAttributes);
+  let recipe: any = async(overrideAttributes): Promise<any> => {
+    if (!_roleName) {
+      return userRecipe(overrideAttributes);
+    }
+    const roleRecord = await findOrCreateRole(_roleModel, _roleName);
+    let userRecord = await userRecipe(overrideAttributes);
+    return new Promise<any>((resolve, reject) => {
+      roleRecord.principals.create({
+        principalType: _rolePrincipalType,
+        principalId: userRecord.id
+      }, (err: Error, record): void => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(record);
+      });
+    });
+  }
+  recipe.withRole = (roleName: string, roleModel, rolePrincipalType = 'User') => {
+    _roleName = roleName;
+    _roleModel = roleModel;
+    _rolePrincipalType = rolePrincipalType;
+    return recipe;
+  }
+  return recipe;
+}
+
+function findOrCreateRole(roleModel, roleName: string): Promise<any> {
+  return new Promise<any>((resolve, reject) => {
+    roleModel.findOrCreate({
+      where: {
+        name: roleName
+      }
+    },(err: Error, roleRecord): void => {
+      if (err) {
+        return reject(err);
+      }
+      return resolve(roleRecord);
+    });
+  });
 }
 
 function resolveAttributes(attributes): Promise<any> {
