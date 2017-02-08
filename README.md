@@ -27,6 +27,10 @@ userRecipe({
   console.log(user);
 });
 ```
+Or use await:
+```js
+let newUser = await userRecipe({email: 'user@loopback.test', password: 'xxx'});
+```
 
 You can pass default values when creating the recipe:
 ```js
@@ -91,6 +95,18 @@ userRecipe().then((user) => {
   console.log(user);
 });
 ```
+## Users and Roles
+
+The bakery allows to easily create users and roles. Use the built-in UserRecipe:
+
+```js
+var app = require('../server'); //path to your loopback server script
+var bakery = require('loopback-bakery');
+
+var adminUserRecipe = bakery.UserRecipe(app.models.User).withRole('admin', app.models.Role);
+let adminUser = await adminUserRecipe({email: 'admin@loopback.test', password: 'admin'});  
+```
+
 ## Logging
 
 ```js
