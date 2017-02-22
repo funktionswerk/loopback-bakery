@@ -232,4 +232,3 @@ function resolveAttributes(attributes) {
 function isThennable(val) {
     return val.then && val.catch;
 }
-//# sourceMappingURL=index.js.map

@@ -29,4 +29,3 @@ var LoopbackModelMock = (function () {
 }());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = LoopbackModelMock;
-//# sourceMappingURL=LoopbackModelMock.js.map
