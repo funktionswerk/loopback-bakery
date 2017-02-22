@@ -167,6 +167,17 @@ function UserRecipe(userModel, defaultAttributes) {
     return recipe;
 }
 exports.UserRecipe = UserRecipe;
+function cycle(list) {
+    var list = list;
+    var idx = 0;
+    return function () {
+        if (idx >= list.length) {
+            idx = 0;
+        }
+        return list[idx++];
+    };
+}
+exports.cycle = cycle;
 function findOrCreateRole(roleModel, roleName) {
     return new Promise(function (resolve, reject) {
         roleModel.findOrCreate({

@@ -87,6 +87,17 @@ export function UserRecipe(userModel, defaultAttributes?: any) {
   return recipe;
 }
 
+export function cycle<T>(list: T[]) {
+  var list = list;
+  var idx = 0;
+  return function(): T {
+    if (idx >= list.length) {
+      idx = 0;
+    }
+    return list[idx++];
+  }
+}
+
 function findOrCreateRole(roleModel, roleName: string): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     roleModel.findOrCreate({
