@@ -38,7 +38,7 @@ var userRecipe = bakery.Recipe(app.models.User, {password: 'xxx'});
 var user = await userRecipe({email: 'user@loopback.test'});
 ```
 You can create multiple samples with ```quantity()```:
-```
+```js
 var userList = await recipe.quantity(3)({name: 'Steven', email: 'steven@mail.test'});
 console.log(userList.length); //3
 ```
@@ -111,7 +111,7 @@ The recipe will create a new role in case the required user role does not exist.
 ## Utils
 
 Use ```cycle()``` to rotate a list of sample values:
-```
+```js
 let pets = bakery.cycle(['dog', 'cat', 'rabbit']);
 console.log(pets()) //dog
 console.log(pets()) //cat
