@@ -32,6 +32,13 @@ describe('bakery', () => {
       expect(record.email).to.equal('steven@mail.test');
     });
 
+    it('should create a list of new record if quantity is defined', async () => {
+      let recipe = bakery.Recipe(model);
+      const recordList = await recipe.quantity(3)({name: 'Steven', email: 'steven@mail.test'});
+      expect(recordList.length).to.equal(3);
+      expect(recordList[0].name).to.equal('Steven');
+    });
+
     it('should use default attributes if defined and not overwritten by the make arguments', async () => {
       let recipe = bakery.Recipe(model, {
         name: 'Richard'
@@ -72,12 +79,12 @@ describe('bakery', () => {
       sinon.assert.alwaysCalledWithExactly(model.create, {name: 'Richard', email: 'steven@mail.test'}, sinon.match.func);
     });
 
-    it('should fail if creating the model returned an error', async () => {
+    it('should fail if creating one of the models returned an error', async () => {
       model.create.error = new Error('Creating the model failed');
       let caughtError;
       let recipe = bakery.Recipe(model);
       try {
-        const record = await recipe({name: 'Steven', email: 'steven@mail.test'});
+        const record = await recipe.quantity(3)({name: 'Steven', email: 'steven@mail.test'});
       }
       catch(err) {
         caughtError = err;
@@ -92,7 +99,7 @@ describe('bakery', () => {
           return new Promise<string>((resolve, reject) => {
             process.nextTick(() => {
               reject(new Error('Promise did not resolve'));
-            })
+            });
           });
         }
       });

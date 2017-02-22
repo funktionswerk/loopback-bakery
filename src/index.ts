@@ -14,7 +14,7 @@ function _log(msg: string): void {
 }
 
 export function Recipe(model, defaultAttributes?: any) {
-  return function(overrideAttributes): Promise<any> {
+  let recipeFunction: any = function(overrideAttributes): Promise<any> {
     return new Promise<any>(async (resolve, reject) => {
       const attributes = { ...defaultAttributes, ...overrideAttributes};
       try {
@@ -34,6 +34,24 @@ export function Recipe(model, defaultAttributes?: any) {
       }
     });
   }
+  recipeFunction.quantity = function(numberOfItems: number) {
+    return function(overrideAttributes): Promise<any[]> {
+      return new Promise<any>(async (resolve, reject) => {
+        try {
+          let createdSampleList = [];
+          while(createdSampleList.length < numberOfItems) {
+            let nextSample = await recipeFunction(overrideAttributes);
+            createdSampleList.push(nextSample);
+          }
+          resolve(createdSampleList);
+        }
+        catch(err) {
+          reject(err);
+        }
+      })
+    }
+  };
+  return recipeFunction;
 }
 
 export function UserRecipe(userModel, defaultAttributes?: any) {

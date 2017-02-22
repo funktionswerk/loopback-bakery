@@ -71,6 +71,21 @@ describe('bakery', function () {
                 }
             });
         }); });
+        it('should create a list of new record if quantity is defined', function () { return __awaiter(_this, void 0, void 0, function () {
+            var recipe, recordList;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        recipe = bakery.Recipe(model);
+                        return [4 /*yield*/, recipe.quantity(3)({ name: 'Steven', email: 'steven@mail.test' })];
+                    case 1:
+                        recordList = _a.sent();
+                        expect(recordList.length).to.equal(3);
+                        expect(recordList[0].name).to.equal('Steven');
+                        return [2 /*return*/];
+                }
+            });
+        }); });
         it('should use default attributes if defined and not overwritten by the make arguments', function () { return __awaiter(_this, void 0, void 0, function () {
             var recipe;
             return __generator(this, function (_a) {
@@ -143,7 +158,7 @@ describe('bakery', function () {
                 }
             });
         }); });
-        it('should fail if creating the model returned an error', function () { return __awaiter(_this, void 0, void 0, function () {
+        it('should fail if creating one of the models returned an error', function () { return __awaiter(_this, void 0, void 0, function () {
             var caughtError, recipe, record, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -153,7 +168,7 @@ describe('bakery', function () {
                         _a.label = 1;
                     case 1:
                         _a.trys.push([1, 3, , 4]);
-                        return [4 /*yield*/, recipe({ name: 'Steven', email: 'steven@mail.test' })];
+                        return [4 /*yield*/, recipe.quantity(3)({ name: 'Steven', email: 'steven@mail.test' })];
                     case 2:
                         record = _a.sent();
                         return [3 /*break*/, 4];

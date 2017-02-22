@@ -55,7 +55,7 @@ function _log(msg) {
     }
 }
 function Recipe(model, defaultAttributes) {
-    return function (overrideAttributes) {
+    var recipeFunction = function (overrideAttributes) {
         var _this = this;
         return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
             var attributes, resolvedAttributes_1, err_1;
@@ -88,6 +88,38 @@ function Recipe(model, defaultAttributes) {
             });
         }); });
     };
+    recipeFunction.quantity = function (numberOfItems) {
+        return function (overrideAttributes) {
+            var _this = this;
+            return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                var createdSampleList, nextSample, err_2;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            _a.trys.push([0, 4, , 5]);
+                            createdSampleList = [];
+                            _a.label = 1;
+                        case 1:
+                            if (!(createdSampleList.length < numberOfItems)) return [3 /*break*/, 3];
+                            return [4 /*yield*/, recipeFunction(overrideAttributes)];
+                        case 2:
+                            nextSample = _a.sent();
+                            createdSampleList.push(nextSample);
+                            return [3 /*break*/, 1];
+                        case 3:
+                            resolve(createdSampleList);
+                            return [3 /*break*/, 5];
+                        case 4:
+                            err_2 = _a.sent();
+                            reject(err_2);
+                            return [3 /*break*/, 5];
+                        case 5: return [2 /*return*/];
+                    }
+                });
+            }); });
+        };
+    };
+    return recipeFunction;
 }
 exports.Recipe = Recipe;
 function UserRecipe(userModel, defaultAttributes) {
